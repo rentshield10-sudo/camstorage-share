@@ -113,7 +113,11 @@
   @media print { .unit-h { break-after: avoid; page-break-after: avoid; -webkit-print-color-adjust: exact; } .sum-g h4 { break-after: avoid; } }
   .sum em, .rrow .none { color: var(--sub); }
   .rrow { display: flex; flex-wrap: wrap; gap: 14px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 12px; }
-  .rrow .pic { position: relative; flex: 1 1 280px; min-width: 0; padding: 0; border: 0; background: var(--field); border-radius: 10px; overflow: hidden; display: block; }
+  .rrow .picw { flex: 1 1 280px; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+  .rrow .more { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .rrow .more button { padding: 0; border: 0; background: var(--field); border-radius: 10px; overflow: hidden; display: block; cursor: pointer; }
+  .rrow .more img { display: block; width: 100%; height: 96px; object-fit: cover; }
+  .rrow .pic { position: relative; width: 100%; padding: 0; border: 0; background: var(--field); border-radius: 10px; overflow: hidden; display: block; }
   .rrow .pic img { display: block; width: 100%; height: auto; max-height: 70vh; object-fit: contain; background: #000; }
   .rrow .pic .num { width: 36px; height: 36px; border-radius: 18px; background: var(--accent); color: #fff; font-size: 18px; border: 2px solid #fff; }
   .rrow .txt { flex: 1 1 240px; min-width: 0; }
@@ -141,7 +145,8 @@
     header { border-bottom: 3px solid #E8701A; }
     main { padding: 12px 0; }
     .rrow { break-inside: avoid; page-break-inside: avoid; flex-wrap: nowrap; border: 0; border-bottom: 1px solid #E1E4EC; border-radius: 0; padding: 12px 0; }
-    .rrow .pic { flex: 0 0 52%; }
+    .rrow .picw { flex: 0 0 52%; }
+    .rrow .more img { height: 1in; }
     .rrow .pic img { max-height: 3.6in; }
     ol.sum li { break-inside: avoid; }
     * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -311,30 +316,47 @@
     return h;
   }
 
-  function reportRow(p, i) {
+  // One report item = one photo, or a group of photos of the same thing (the app sends the group's photos
+  // next to each other with the same p.gi). The first photo of a group is shown big, the rest small.
+  function reportRow(it, n) {
+    var p = it.ps[0], i = it.i0;
     var row = el('section', { class: 'rrow' });
-    var pic = el('button', { class: 'pic', type: 'button', 'aria-label': 'Open photo ' + (i + 1) + ' full size' });
-    var img = el('img', { src: thumb(p.i, 1200), alt: 'Photo ' + (i + 1), loading: i < 3 ? 'eager' : 'lazy' });
+    var picw = el('div', { class: 'picw' });
+    var pic = el('button', { class: 'pic', type: 'button', 'aria-label': 'Open photo full size, item ' + n });
+    var img = el('img', { src: thumb(p.i, 1200), alt: 'Item ' + n, loading: n < 4 ? 'eager' : 'lazy' });
     img.onerror = function () { pic.innerHTML = ''; pic.appendChild(el('div', { class: 'missing', text: 'This photo is no longer shared.' })); };
     pic.appendChild(img);
-    pic.appendChild(el('span', { class: 'num', text: String(i + 1) }));
+    pic.appendChild(el('span', { class: 'num', text: String(n) }));
     pic.addEventListener('click', function () { openViewer(i); });
-    row.appendChild(pic);
+    picw.appendChild(pic);
+    if (it.ps.length > 1) {
+      var more = el('div', { class: 'more' });
+      it.ps.slice(1).forEach(function (q, k) {
+        var b = el('button', { type: 'button', 'aria-label': 'Open photo ' + (k + 2) + ' of item ' + n + ' full size' });
+        var t = el('img', { src: thumb(q.i, 400), alt: 'Item ' + n + ', photo ' + (k + 2), loading: 'lazy' });
+        t.onerror = function () { b.remove(); };
+        b.appendChild(t);
+        b.addEventListener('click', function () { openViewer(i + k + 1); });
+        more.appendChild(b);
+      });
+      picw.appendChild(more);
+    }
+    row.appendChild(picw);
     var txt = el('div', { class: 'txt' });
-    var h3 = el('h3', {}, [el('span', { class: 'rn', text: String(i + 1) })]);
-    h3.appendChild(document.createTextNode('Photo ' + (i + 1)));
+    var h3 = el('h3', {}, [el('span', { class: 'rn', text: String(n) })]);
+    h3.appendChild(document.createTextNode(it.ps.length > 1 ? 'Item ' + n + ' · ' + it.ps.length + ' photos' : 'Photo ' + n));
     if (p.u) h3.appendChild(el('span', { class: 'uchip', text: str(p.u, 40) }));
     txt.appendChild(h3);
     var meta = [];
     if (p.w) meta.push(fmtDate(p.w, true));
     if (p.b) meta.push(str(p.b, 80));
     if (meta.length) txt.appendChild(el('p', { class: 'meta', text: meta.join(' · ') }));
-    var list = issues(p);
+    var list = it.is;
     if (list.length) {
       var ul = el('ul');
       list.slice(0, 50).forEach(function (t) { ul.appendChild(el('li', { text: str(t) })); });
       txt.appendChild(ul);
-    } else txt.appendChild(el('p', { class: 'none', text: 'No comment on this photo.' }));
+    } else txt.appendChild(el('p', { class: 'none', text: it.ps.length > 1 ? 'No comment on these photos.' : 'No comment on this photo.' }));
     row.appendChild(txt);
     return row;
   }
@@ -346,28 +368,44 @@
     document.head.appendChild(metaScheme);
     document.title = (str(data.r.t, 120) || 'Project Report') + (data.t ? ' · ' + str(data.t, 120) : '');
     app.appendChild(reportHeader());
+    // Items: a photo on its own, or a group of photos (same p.gi, sent next to each other).
+    var items = [];
+    photos.forEach(function (p, i) {
+      var gi = typeof p.gi === 'number' && p.gi > 0 ? p.gi : 0;
+      var last = items[items.length - 1];
+      if (gi && last && last.gi === gi) last.ps.push(p);
+      else items.push({ gi: gi, ps: [p], i0: i });
+    });
+    items.forEach(function (it, k) {
+      it.n = k + 1;
+      var seen = [];
+      it.ps.forEach(function (q) { issues(q).forEach(function (t) { if (seen.indexOf(t) < 0) seen.push(t); }); });
+      it.is = seen;
+    });
     // Group by unit (the app sends photos already in unit order: Unit 1, Unit 2…, Common Areas, then untagged).
     var hasUnits = photos.some(function (p) { return p.u; });
     var groups = [];
-    photos.forEach(function (p, i) {
+    items.forEach(function (it) {
+      var p = it.ps[0];
       var name = hasUnits ? (p.u ? str(p.u, 40) : 'Other photos') : '';
       var g = groups.length && groups[groups.length - 1].name === name ? groups[groups.length - 1] : null;
       if (!g) { g = { name: name, items: [] }; groups.push(g); }
-      g.items.push({ p: p, i: i });
+      g.items.push(it);
     });
-    var countIssues = function (g) { return g.items.reduce(function (n, x) { return n + issues(x.p).length; }, 0); };
+    var countIssues = function (g) { return g.items.reduce(function (n, it) { return n + it.is.length; }, 0); };
+    var countPhotos = function (g) { return g.items.reduce(function (n, it) { return n + it.ps.length; }, 0); };
 
     main.appendChild(el('p', { class: 'sec-h', text: 'Summary' }));
     var sumWrap = el('div', { class: 'sum-g' });
     groups.forEach(function (g) {
       if (g.name) sumWrap.appendChild(el('h4', { text: g.name }));
       var sum = el('ol', { class: 'sum' });
-      g.items.forEach(function (x) {
-        var list = issues(x.p);
+      g.items.forEach(function (it) {
         var st = el('span', { class: 'st' });
-        if (list.length) list.forEach(function (t, k) { if (k) st.appendChild(el('br')); st.appendChild(document.createTextNode(str(t))); });
+        if (it.is.length) it.is.forEach(function (t, k) { if (k) st.appendChild(el('br')); st.appendChild(document.createTextNode(str(t))); });
         else st.appendChild(el('em', { text: 'No comment' }));
-        sum.appendChild(el('li', {}, [el('span', { class: 'rn', text: String(x.i + 1) }), st]));
+        if (it.ps.length > 1) st.appendChild(el('em', { text: ' · ' + it.ps.length + ' photos' }));
+        sum.appendChild(el('li', {}, [el('span', { class: 'rn', text: String(it.n) }), st]));
       });
       sumWrap.appendChild(sum);
     });
@@ -375,10 +413,10 @@
 
     groups.forEach(function (g) {
       if (g.name) {
-        var n = countIssues(g);
-        main.appendChild(el('h2', { class: 'unit-h' }, [document.createTextNode(g.name), el('span', { text: g.items.length + (g.items.length === 1 ? ' photo' : ' photos') + ' · ' + n + (n === 1 ? ' issue' : ' issues') })]));
+        var n = countIssues(g), np = countPhotos(g);
+        main.appendChild(el('h2', { class: 'unit-h' }, [document.createTextNode(g.name), el('span', { text: np + (np === 1 ? ' photo' : ' photos') + ' · ' + n + (n === 1 ? ' issue' : ' issues') })]));
       } else main.appendChild(el('p', { class: 'sec-h', text: 'Photos' }));
-      g.items.forEach(function (x) { main.appendChild(reportRow(x.p, x.i)); });
+      g.items.forEach(function (it) { main.appendChild(reportRow(it, it.n)); });
     });
   } else {
     app.appendChild(header());

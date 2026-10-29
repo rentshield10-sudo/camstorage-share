@@ -86,6 +86,57 @@
   .cm .a span { font-weight: 400; color: var(--sub); font-size: 12px; margin-left: 4px; }
   .cm .t { margin-top: 2px; line-height: 1.45; white-space: pre-wrap; }
   .empty { margin: 0; font-size: 14px; color: var(--sub); }
+  /* Project Report */
+  .job { margin: 0; font-size: 17px; font-weight: 700; }
+  .btns { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 18px; }
+  .btns button.dlall { border: 0; background: transparent; padding: 0; }
+  .sec-h { margin: 6px 0 -4px; font-size: 13px; font-weight: 800; letter-spacing: .5px; color: var(--sub); text-transform: uppercase; }
+  ol.sum { list-style: none; margin: 0; padding: 0; background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+  ol.sum li { display: flex; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--line); font-size: 15px; line-height: 1.45; }
+  ol.sum li:last-child { border-bottom: 0; }
+  .rn { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 13px; background: var(--accent); color: #fff; font-weight: 800; font-size: 13px; }
+  .sum .st { padding-top: 2px; }
+  .unit-h { display: flex; align-items: baseline; gap: 10px; margin: 10px 0 -2px; padding: 8px 14px; background: var(--navy); color: #fff; border-radius: 12px; font-size: 18px; font-weight: 800; }
+  .unit-h span { font-size: 13px; font-weight: 600; opacity: .8; }
+  .sum-g { display: flex; flex-direction: column; gap: 6px; }
+  .sum-g h4 { margin: 4px 2px 0; font-size: 14px; font-weight: 800; color: var(--ink); }
+  .uchip { display: inline-block; margin-left: 6px; padding: 2px 9px; border-radius: 999px; background: var(--accentSoft); color: var(--accentInk); font-size: 13px; font-weight: 800; }
+  @media print { .unit-h { break-after: avoid; page-break-after: avoid; -webkit-print-color-adjust: exact; } .sum-g h4 { break-after: avoid; } }
+  .sum em, .rrow .none { color: var(--sub); }
+  .rrow { display: flex; flex-wrap: wrap; gap: 14px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 12px; }
+  .rrow .pic { position: relative; flex: 1 1 280px; min-width: 0; padding: 0; border: 0; background: var(--field); border-radius: 10px; overflow: hidden; display: block; }
+  .rrow .pic img { display: block; width: 100%; height: auto; max-height: 70vh; object-fit: contain; background: #000; }
+  .rrow .pic .num { width: 36px; height: 36px; border-radius: 18px; background: var(--accent); color: #fff; font-size: 18px; border: 2px solid #fff; }
+  .rrow .txt { flex: 1 1 240px; min-width: 0; }
+  .rrow h3 { display: flex; align-items: center; gap: 8px; margin: 2px 0 0; font-size: 17px; }
+  .rrow .meta { margin: 4px 0 0; font-size: 13px; color: var(--sub); }
+  .rrow ul { margin: 8px 0 0; padding-left: 20px; font-size: 15px; line-height: 1.45; }
+  .rrow ul li { margin-bottom: 6px; }
+  .rrow .none { margin: 8px 0 0; font-style: italic; }
+  .iss-panel ul { margin: 0; padding-left: 20px; font-size: 15px; line-height: 1.45; }
+  /* Project Report look: always light (even when the phone is in dark mode), pale blue unit bands,
+     blue title/headings/unit tags, orange numbers. html.report.report outranks the dark-mode tokens. */
+  html.report.report { color-scheme: light; --bg: #FFFFFF; --card: #FFFFFF; --field: #ECEEF4; --ink: #15163A; --sub: #5B5E7A; --line: #E1E4EC;
+    --accent: #E8701A; --accentInk: #B4540A; --accentSoft: #FFF1E5; --link: #1D4ED8; --blue: #1D4ED8; --blueSoft: #EAF1FF; }
+  html.report.report body { background: #FFFFFF; }
+  html.report.report header h1, html.report.report .sec-h, html.report.report .sum-g h4 { color: var(--blue); }
+  html.report.report .unit-h { background: var(--blueSoft); color: var(--blue); }
+  html.report.report .unit-h span { color: #3B4A6B; opacity: 1; }
+  html.report.report .uchip { background: var(--blueSoft); color: var(--blue); }
+  html.report.report .rrow { box-shadow: 0 1px 2px rgba(20, 30, 60, .06); }
+  @media print {
+    @page { size: letter; margin: 0.5in; }
+    :root { --bg: #fff; --card: #fff; --field: #F3F4F8; --ink: #15163A; --sub: #5B5E7A; --line: #E1E4EC; --accent: #E8701A; }
+    html, body { background: #fff; }
+    .btns, #viewer, footer { display: none !important; }
+    header { border-bottom: 3px solid #E8701A; }
+    main { padding: 12px 0; }
+    .rrow { break-inside: avoid; page-break-inside: avoid; flex-wrap: nowrap; border: 0; border-bottom: 1px solid #E1E4EC; border-radius: 0; padding: 12px 0; }
+    .rrow .pic { flex: 0 0 52%; }
+    .rrow .pic img { max-height: 3.6in; }
+    ol.sum li { break-inside: avoid; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
 </style>
 </head>
 <body>
@@ -213,10 +264,114 @@
     return b;
   }
 
-  app.appendChild(header());
+  // ---------- Project Report (numbered photos with their issues, summary on top, Download PDF) ----------
+  var isReport = !!(data.r && typeof data.r === 'object');
+  function issues(p) { return Array.isArray(p.is) ? p.is.filter(function (t) { return typeof t === 'string' && t.trim(); }) : []; }
+
+  function reportHeader() {
+    var h = el('header');
+    if (data.c && (data.c.n || okId(data.c.l))) {
+      var c = el('div', { class: 'company' });
+      if (okId(data.c.l)) c.appendChild(el('img', { src: thumb(data.c.l, 200), alt: '' }));
+      if (data.c.n) c.appendChild(el('span', { text: str(data.c.n, 120) }));
+      h.appendChild(c);
+    }
+    h.appendChild(el('h1', { text: str(data.r.t, 120) || 'Project Report' }));
+    if (data.t) h.appendChild(el('p', { class: 'job', text: str(data.t, 200) }));
+    if (data.a) h.appendChild(el('p', { class: 'addr', text: str(data.a, 300) }));
+    var parts = [photos.length + (photos.length === 1 ? ' photo' : ' photos')];
+    if (data.s) parts.push(fmtDay(data.s));
+    h.appendChild(el('p', { class: 'meta', text: parts.join(' · ') }));
+    var btns = el('div', { class: 'btns' });
+    var pdf = el('button', { class: 'dlall', type: 'button' });
+    pdf.appendChild(svg(ICON_DL));
+    pdf.appendChild(document.createTextNode('Download PDF'));
+    pdf.addEventListener('click', function () { window.print(); });
+    btns.appendChild(pdf);
+    if (okId(data.f)) {
+      var a = el('a', { class: 'dlall', href: 'https://drive.google.com/drive/folders/' + data.f, target: '_blank', rel: 'noopener' });
+      a.appendChild(svg(ICON_DL));
+      a.appendChild(document.createTextNode('Download all photos'));
+      btns.appendChild(a);
+    }
+    h.appendChild(btns);
+    return h;
+  }
+
+  function reportRow(p, i) {
+    var row = el('section', { class: 'rrow' });
+    var pic = el('button', { class: 'pic', type: 'button', 'aria-label': 'Open photo ' + (i + 1) + ' full size' });
+    var img = el('img', { src: thumb(p.i, 1200), alt: 'Photo ' + (i + 1), loading: i < 3 ? 'eager' : 'lazy' });
+    img.onerror = function () { pic.innerHTML = ''; pic.appendChild(el('div', { class: 'missing', text: 'This photo is no longer shared.' })); };
+    pic.appendChild(img);
+    pic.appendChild(el('span', { class: 'num', text: String(i + 1) }));
+    pic.addEventListener('click', function () { openViewer(i); });
+    row.appendChild(pic);
+    var txt = el('div', { class: 'txt' });
+    var h3 = el('h3', {}, [el('span', { class: 'rn', text: String(i + 1) })]);
+    h3.appendChild(document.createTextNode('Photo ' + (i + 1)));
+    if (p.u) h3.appendChild(el('span', { class: 'uchip', text: str(p.u, 40) }));
+    txt.appendChild(h3);
+    var meta = [];
+    if (p.w) meta.push(fmtDate(p.w, true));
+    if (p.b) meta.push(str(p.b, 80));
+    if (meta.length) txt.appendChild(el('p', { class: 'meta', text: meta.join(' · ') }));
+    var list = issues(p);
+    if (list.length) {
+      var ul = el('ul');
+      list.slice(0, 50).forEach(function (t) { ul.appendChild(el('li', { text: str(t) })); });
+      txt.appendChild(ul);
+    } else txt.appendChild(el('p', { class: 'none', text: 'No comment on this photo.' }));
+    row.appendChild(txt);
+    return row;
+  }
+
   var main = el('main');
-  if (!photos.length) main.appendChild(el('p', { class: 'missing', text: 'No photos in this link.' }));
-  photos.forEach(function (p, i) { main.appendChild(card(p, i)); });
+  if (isReport) {
+    document.documentElement.classList.add('report');
+    var metaScheme = el('meta', { name: 'color-scheme', content: 'light' });
+    document.head.appendChild(metaScheme);
+    document.title = (str(data.r.t, 120) || 'Project Report') + (data.t ? ' · ' + str(data.t, 120) : '');
+    app.appendChild(reportHeader());
+    // Group by unit (the app sends photos already in unit order: Unit 1, Unit 2…, Common Areas, then untagged).
+    var hasUnits = photos.some(function (p) { return p.u; });
+    var groups = [];
+    photos.forEach(function (p, i) {
+      var name = hasUnits ? (p.u ? str(p.u, 40) : 'Other photos') : '';
+      var g = groups.length && groups[groups.length - 1].name === name ? groups[groups.length - 1] : null;
+      if (!g) { g = { name: name, items: [] }; groups.push(g); }
+      g.items.push({ p: p, i: i });
+    });
+    var countIssues = function (g) { return g.items.reduce(function (n, x) { return n + issues(x.p).length; }, 0); };
+
+    main.appendChild(el('p', { class: 'sec-h', text: 'Summary' }));
+    var sumWrap = el('div', { class: 'sum-g' });
+    groups.forEach(function (g) {
+      if (g.name) sumWrap.appendChild(el('h4', { text: g.name }));
+      var sum = el('ol', { class: 'sum' });
+      g.items.forEach(function (x) {
+        var list = issues(x.p);
+        var st = el('span', { class: 'st' });
+        if (list.length) list.forEach(function (t, k) { if (k) st.appendChild(el('br')); st.appendChild(document.createTextNode(str(t))); });
+        else st.appendChild(el('em', { text: 'No comment' }));
+        sum.appendChild(el('li', {}, [el('span', { class: 'rn', text: String(x.i + 1) }), st]));
+      });
+      sumWrap.appendChild(sum);
+    });
+    main.appendChild(sumWrap);
+
+    groups.forEach(function (g) {
+      if (g.name) {
+        var n = countIssues(g);
+        main.appendChild(el('h2', { class: 'unit-h' }, [document.createTextNode(g.name), el('span', { text: g.items.length + (g.items.length === 1 ? ' photo' : ' photos') + ' · ' + n + (n === 1 ? ' issue' : ' issues') })]));
+      } else main.appendChild(el('p', { class: 'sec-h', text: 'Photos' }));
+      g.items.forEach(function (x) { main.appendChild(reportRow(x.p, x.i)); });
+    });
+  } else {
+    app.appendChild(header());
+    if (!photos.length) main.appendChild(el('p', { class: 'missing', text: 'No photos in this link.' }));
+    photos.forEach(function (p, i) { main.appendChild(card(p, i)); });
+  }
   main.appendChild(el('footer', { text: 'Shared with CamStorage' }));
   app.appendChild(main);
 
@@ -295,6 +450,14 @@
         box.appendChild(el('p', { class: 'd' }, [gl]));
       }
       panel.appendChild(el('div', { class: 'by' }, [el('div', { class: 'avatar', text: initials(p.b) }), box]));
+      any = true;
+    }
+    if (Array.isArray(p.is) && p.is.length) {
+      var ib = el('div', { class: 'sec iss-panel' }, [el('p', { class: 'lbl', text: 'ISSUES' })]);
+      var iul = el('ul');
+      p.is.slice(0, 50).forEach(function (t) { if (typeof t === 'string' && t.trim()) iul.appendChild(el('li', { text: str(t) })); });
+      ib.appendChild(iul);
+      panel.appendChild(ib);
       any = true;
     }
     if (p.n) { panel.appendChild(el('p', { class: 'note', text: str(p.n) })); any = true; }

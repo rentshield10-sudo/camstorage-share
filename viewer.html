@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>__TITLE__</title>
+<!--OG-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F3F4F8; --card: #FFFFFF; --field: #ECEEF4; --ink: #15163A; --sub: #5B5E7A; --line: #E1E4EC;
+    --navy: #1B1C4A; --accent: #E8701A; --accentInk: #B4540A; --accentSoft: #FFF1E5; --link: #2F6FEB;
+    --dark: #0E0F24;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #101126; --card: #1A1B36; --field: #24264A; --ink: #F1F2F8; --sub: #A9ACC4; --line: #2C2E52; --accentInk: #FFB070; --accentSoft: #3A2614; --link: #7FA6FF; }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); font-family: Inter, system-ui, -apple-system, sans-serif; -webkit-text-size-adjust: 100%; }
+  a { color: var(--link); }
+  button { font: inherit; cursor: pointer; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  header { background: var(--card); border-bottom: 1px solid var(--line); padding: 22px 16px 16px; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+  .company { display: flex; align-items: center; gap: 10px; }
+  .company img { width: 40px; height: 40px; border-radius: 9px; object-fit: cover; background: var(--field); }
+  .company span { font-size: 15px; font-weight: 700; color: var(--sub); }
+  h1 { margin: 0; font-size: 24px; font-weight: 800; line-height: 1.2; }
+  .addr { margin: 0; font-size: 14px; color: var(--sub); }
+  .meta { margin: 0; font-size: 13px; color: var(--sub); }
+  .dlall { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 16px; font-weight: 700; color: var(--link); text-decoration: none; }
+  main { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+  .card { display: block; width: 100%; padding: 0; text-align: left; color: inherit; background: var(--card); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+  .shot { position: relative; background: var(--field); min-height: 220px; display: flex; align-items: center; justify-content: center; }
+  .shot img { display: block; width: 100%; height: auto; max-height: 80vh; object-fit: contain; background: #000; }
+  .num { position: absolute; top: 10px; left: 10px; min-width: 28px; height: 28px; padding: 0 8px; border-radius: 14px; background: #fff; color: #15163A; font-size: 13px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+  .play { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+  .play span { width: 58px; height: 58px; border-radius: 29px; background: rgba(0,0,0,.55); display: flex; align-items: center; justify-content: center; }
+  .under { padding: 10px 14px 12px; display: flex; align-items: center; gap: 12px; min-height: 20px; }
+  .under .who { flex: 1; font-size: 13px; color: var(--sub); }
+  .count { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 700; color: var(--sub); }
+  .count.v { color: var(--accentInk); }
+  .missing { padding: 40px 16px; color: var(--sub); font-size: 14px; text-align: center; }
+  footer { margin: 8px 0 28px; text-align: center; font-size: 12px; color: var(--sub); }
+  .notice { margin: 60px 16px; padding: 24px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; text-align: center; }
+  .notice h2 { margin: 0 0 8px; font-size: 20px; }
+  .notice p { margin: 0; color: var(--sub); }
+
+  /* Open photo */
+  #viewer { position: fixed; inset: 0; background: var(--dark); color: #fff; display: none; flex-direction: column; z-index: 10; }
+  #viewer.open { display: flex; }
+  .vbar { display: flex; align-items: center; gap: 6px; padding: calc(env(safe-area-inset-top) + 8px) 8px 8px; }
+  .vbar .pos { flex: 1; font-size: 16px; font-weight: 700; color: #D5D8E2; padding-left: 4px; }
+  .ib { width: 44px; height: 44px; border: 0; background: transparent; color: #fff; display: inline-flex; align-items: center; justify-content: center; border-radius: 22px; text-decoration: none; }
+  .ib:focus-visible, .card:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .vscroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .stage { position: relative; height: 62vh; min-height: 300px; overflow: hidden; touch-action: none; background: #000; display: flex; align-items: center; justify-content: center; }
+  .stage img { max-width: 100%; max-height: 100%; transform-origin: 0 0; user-select: none; -webkit-user-drag: none; will-change: transform; }
+  .stage iframe { width: 100%; height: 100%; border: 0; }
+  .nav { position: absolute; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 22px; border: 0; background: rgba(0,0,0,.45); color: #fff; display: flex; align-items: center; justify-content: center; }
+  .nav.prev { left: 8px; } .nav.next { right: 8px; }
+  @media (hover: none) { .nav { display: none; } }
+  .strip { display: flex; gap: 6px; padding: 10px 12px; overflow-x: auto; scrollbar-width: none; }
+  .strip button { flex: 0 0 auto; width: 56px; height: 56px; padding: 0; border: 0; border-radius: 8px; overflow: hidden; background: #2A2C4E; opacity: .65; }
+  .strip button.on { opacity: 1; outline: 3px solid var(--accent); outline-offset: -3px; }
+  .strip img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .panel { background: var(--card); color: var(--ink); border-radius: 20px 20px 0 0; margin-top: 6px; padding: 18px 18px calc(env(safe-area-inset-bottom) + 28px); display: flex; flex-direction: column; gap: 14px; min-height: 30vh; }
+  .by { display: flex; align-items: center; gap: 10px; }
+  .avatar { width: 36px; height: 36px; border-radius: 18px; background: var(--accent); color: #fff; font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+  .by p { margin: 0; }
+  .by .n { font-size: 15px; font-weight: 700; }
+  .by .d { font-size: 13px; color: var(--sub); margin-top: 1px; }
+  .note { margin: 0; font-size: 15px; line-height: 1.5; white-space: pre-wrap; }
+  .tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tags span { font-size: 13px; font-weight: 700; color: var(--ink); background: var(--field); border-radius: 999px; padding: 5px 10px; }
+  .sec { border-top: 1px solid var(--line); padding-top: 12px; display: flex; flex-direction: column; gap: 10px; }
+  .lbl { margin: 0; font-size: 12px; font-weight: 700; color: var(--sub); letter-spacing: .4px; }
+  .vn { display: flex; flex-direction: column; gap: 6px; }
+  .vn audio { width: 100%; height: 40px; }
+  .vn .tx { margin: 0; font-size: 14px; line-height: 1.5; }
+  .vn .w { font-size: 12px; color: var(--sub); }
+  .cm p { margin: 0; font-size: 14px; }
+  .cm .a { font-weight: 700; }
+  .cm .a span { font-weight: 400; color: var(--sub); font-size: 12px; margin-left: 4px; }
+  .cm .t { margin-top: 2px; line-height: 1.45; white-space: pre-wrap; }
+  .empty { margin: 0; font-size: 14px; color: var(--sub); }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<div id="viewer" role="dialog" aria-modal="true" aria-label="Photo">
+  <div class="vbar">
+    <button class="ib" id="vClose" aria-label="Back to all photos"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg></button>
+    <span class="pos" id="vPos"></span>
+    <button class="ib" id="vZoom" aria-label="Zoom in"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/><path d="M11 8v6"/><path d="M8 11h6"/></svg></button>
+    <a class="ib" id="vDl" aria-label="Download this photo" target="_blank" rel="noopener"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg></a>
+  </div>
+  <div class="vscroll" id="vScroll">
+    <div class="stage" id="vStage">
+      <button class="nav prev" id="vPrev" aria-label="Previous photo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <button class="nav next" id="vNext" aria-label="Next photo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+    </div>
+    <div class="strip" id="vStrip"></div>
+    <div class="panel" id="vPanel"></div>
+  </div>
+</div>
+
+<script>window.__CS__ = /*DATA*/null;</script>
+<script>
+(function () {
+  'use strict';
+  var app = document.getElementById('app');
+
+  // ---------- helpers (all text goes in with textContent, never as HTML) ----------
+  function el(tag, attrs, kids) {
+    var n = document.createElement(tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) {
+      if (k === 'text') n.textContent = attrs[k];
+      else if (k === 'class') n.className = attrs[k];
+      else n.setAttribute(k, attrs[k]);
+    });
+    (kids || []).forEach(function (c) { if (c) n.appendChild(c); });
+    return n;
+  }
+  function svg(html) { var s = document.createElement('span'); s.innerHTML = html; return s.firstChild; } // fixed icons only
+  var ID_OK = /^[A-Za-z0-9_-]{10,100}$/;
+  function okId(id) { return typeof id === 'string' && ID_OK.test(id); }
+  function str(v, max) { return typeof v === 'string' ? v.slice(0, max || 4000) : ''; }
+  function thumb(id, w) { return 'https://drive.google.com/thumbnail?id=' + encodeURIComponent(id) + '&sz=w' + w; }
+  function dl(id) { return 'https://drive.google.com/uc?export=download&id=' + encodeURIComponent(id); }
+  function fmtDate(t, withYear) {
+    if (!t) return '';
+    var d = new Date(t);
+    if (isNaN(d)) return '';
+    var o = { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' };
+    if (withYear) o.year = 'numeric';
+    return d.toLocaleString(undefined, o);
+  }
+  function fmtDay(t) { var d = new Date(t); return isNaN(d) ? '' : d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }); }
+  function fmtSec(s) { s = Math.max(0, Math.round(+s || 0)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); }
+  function initials(name) {
+    var p = String(name || '').replace(/@.*/, '').split(/[\s._-]+/).filter(Boolean);
+    return ((p[0] || '?')[0] + (p[1] ? p[1][0] : '')).toUpperCase();
+  }
+  function notice(title, text) {
+    app.innerHTML = '';
+    app.appendChild(el('div', { class: 'notice' }, [el('h2', { text: title }), el('p', { text: text })]));
+  }
+
+  var ICON_CMT = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>';
+  var ICON_MIC = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3"/></svg>';
+  var ICON_PLAY = '<svg width="24" height="24" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>';
+  var ICON_DL = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>';
+
+  // ---------- read the link ----------
+  var data = window.__CS__ || null;
+  if (!data || !Array.isArray(data.p)) return notice('Link not found', 'This link is incomplete. Ask the sender to share it again.');
+  if (data.e && data.e < Date.now()) return notice('This link has expired', 'Ask the sender for a new link.');
+
+  var photos = data.p.filter(function (p) { return p && okId(p.i); });
+  var showDetails = !!data.d;
+  if (data.t) document.title = str(data.t, 120) + ' · Shared photos';
+
+  // ---------- gallery page ----------
+  function header() {
+    var h = el('header');
+    if (data.c && (data.c.n || okId(data.c.l))) {
+      var c = el('div', { class: 'company' });
+      if (okId(data.c.l)) c.appendChild(el('img', { src: thumb(data.c.l, 200), alt: '' }));
+      if (data.c.n) c.appendChild(el('span', { text: str(data.c.n, 120) }));
+      h.appendChild(c);
+    }
+    if (data.t) h.appendChild(el('h1', { text: str(data.t, 200) }));
+    if (data.a) h.appendChild(el('p', { class: 'addr', text: str(data.a, 300) }));
+    var nV = photos.filter(function (p) { return p.k === 'v'; }).length;
+    var nP = photos.length - nV;
+    var parts = [];
+    if (nP) parts.push(nP + (nP === 1 ? ' photo' : ' photos'));
+    if (nV) parts.push(nV + (nV === 1 ? ' video' : ' videos'));
+    if (data.s) parts.push('shared ' + fmtDay(data.s));
+    h.appendChild(el('p', { class: 'meta', text: parts.join(' · ') }));
+    if (okId(data.f)) {
+      var a = el('a', { class: 'dlall', href: 'https://drive.google.com/drive/folders/' + data.f, target: '_blank', rel: 'noopener' });
+      a.appendChild(svg(ICON_DL));
+      a.appendChild(document.createTextNode('Download all photos'));
+      h.appendChild(a);
+    }
+    return h;
+  }
+
+  function card(p, i) {
+    var b = el('button', { class: 'card', 'aria-label': 'Open photo ' + (i + 1) + ' of ' + photos.length });
+    var shot = el('div', { class: 'shot' });
+    var img = el('img', { src: thumb(p.i, 1200), alt: p.n ? str(p.n, 120) : 'Photo ' + (i + 1), loading: i < 3 ? 'eager' : 'lazy' });
+    img.onerror = function () { shot.innerHTML = ''; shot.appendChild(el('div', { class: 'missing', text: 'This photo is no longer shared.' })); };
+    shot.appendChild(img);
+    shot.appendChild(el('span', { class: 'num', text: String(i + 1) }));
+    if (p.k === 'v') { var pl = el('span', { class: 'play' }, [el('span')]); pl.firstChild.appendChild(svg(ICON_PLAY)); shot.appendChild(pl); }
+    b.appendChild(shot);
+    var under = el('div', { class: 'under' });
+    var who = [];
+    if (showDetails) { if (p.w) who.push(fmtDate(p.w)); if (p.b) who.push(str(p.b, 80)); if (p.u) who.push(str(p.u, 40)); }
+    under.appendChild(el('span', { class: 'who', text: who.join(' · ') }));
+    var nc = Array.isArray(p.cm) ? p.cm.length : 0;
+    if (nc) { var c = el('span', { class: 'count' }); c.appendChild(svg(ICON_CMT)); c.appendChild(document.createTextNode(String(nc))); under.appendChild(c); }
+    var nv = Array.isArray(p.vn) ? p.vn.length : 0;
+    if (nv) { var v = el('span', { class: 'count v' }); v.appendChild(svg(ICON_MIC)); v.appendChild(document.createTextNode(String(nv))); under.appendChild(v); }
+    if (who.length || nc || nv) b.appendChild(under);
+    b.addEventListener('click', function () { openViewer(i); });
+    return b;
+  }
+
+  app.appendChild(header());
+  var main = el('main');
+  if (!photos.length) main.appendChild(el('p', { class: 'missing', text: 'No photos in this link.' }));
+  photos.forEach(function (p, i) { main.appendChild(card(p, i)); });
+  main.appendChild(el('footer', { text: 'Shared with CamStorage' }));
+  app.appendChild(main);
+
+  // ---------- open photo ----------
+  var V = document.getElementById('viewer');
+  var stage = document.getElementById('vStage');
+  var strip = document.getElementById('vStrip');
+  var panel = document.getElementById('vPanel');
+  var cur = 0, img = null, z = { s: 1, x: 0, y: 0 }, lastFocus = null;
+
+  photos.forEach(function (p, i) {
+    var t = el('button', { 'aria-label': 'Photo ' + (i + 1) });
+    t.appendChild(el('img', { src: thumb(p.i, 200), alt: '', loading: 'lazy' }));
+    t.addEventListener('click', function () { show(i); });
+    strip.appendChild(t);
+  });
+
+  function applyZ() { if (img) img.style.transform = 'translate(' + z.x + 'px,' + z.y + 'px) scale(' + z.s + ')'; }
+  function resetZ() { z = { s: 1, x: 0, y: 0 }; applyZ(); }
+  // Keep the zoomed picture from sliding off screen.
+  function clampZ() {
+    if (!img) return;
+    if (z.s <= 1) { resetZ(); return; }
+    var r = stage.getBoundingClientRect(), w = img.offsetWidth * z.s, h = img.offsetHeight * z.s;
+    var ox = img.offsetLeft, oy = img.offsetTop;
+    var minX = Math.min(0, r.width - w) - ox, maxX = Math.max(0, r.width - w) - ox;
+    var minY = Math.min(0, r.height - h) - oy, maxY = Math.max(0, r.height - h) - oy;
+    if (w <= r.width) z.x = (r.width - w) / 2 - ox; else z.x = Math.min(maxX, Math.max(minX, z.x));
+    if (h <= r.height) z.y = (r.height - h) / 2 - oy; else z.y = Math.min(maxY, Math.max(minY, z.y));
+    applyZ();
+  }
+  // Zoom to scale s around a point (px, py) in stage coordinates.
+  function zoomAt(s, px, py) {
+    s = Math.min(5, Math.max(1, s));
+    var ox = img.offsetLeft, oy = img.offsetTop;
+    var lx = (px - ox - z.x) / z.s, ly = (py - oy - z.y) / z.s;
+    z.s = s; z.x = px - ox - lx * s; z.y = py - oy - ly * s;
+    clampZ();
+  }
+
+  function show(i) {
+    cur = (i + photos.length) % photos.length;
+    var p = photos[cur];
+    document.getElementById('vPos').textContent = (cur + 1) + ' / ' + photos.length;
+    document.getElementById('vDl').href = dl(p.i);
+    document.getElementById('vZoom').style.visibility = p.k === 'v' ? 'hidden' : 'visible';
+    Array.prototype.forEach.call(stage.querySelectorAll('img,iframe,.missing'), function (n) { n.remove(); });
+    if (p.k === 'v') {
+      img = null;
+      stage.insertBefore(el('iframe', { src: 'https://drive.google.com/file/d/' + encodeURIComponent(p.i) + '/preview', allow: 'autoplay; fullscreen', allowfullscreen: '', title: 'Video ' + (cur + 1) }), stage.firstChild);
+    } else {
+      img = el('img', { src: thumb(p.i, 2400), alt: p.n ? str(p.n, 120) : 'Photo ' + (cur + 1), draggable: 'false' });
+      img.onerror = function () { this.remove(); stage.insertBefore(el('div', { class: 'missing', text: 'This photo is no longer shared.' }), stage.firstChild); img = null; };
+      stage.insertBefore(img, stage.firstChild);
+      resetZ();
+    }
+    Array.prototype.forEach.call(strip.children, function (t, k) { t.classList.toggle('on', k === cur); });
+    var on = strip.children[cur];
+    if (on) on.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+    renderPanel(p);
+    document.getElementById('vScroll').scrollTop = 0;
+  }
+
+  function renderPanel(p) {
+    panel.innerHTML = '';
+    var any = false;
+    if (showDetails && (p.b || p.w || p.g || data.a)) {
+      var lines = [];
+      if (p.w) lines.push(fmtDate(p.w, true));
+      if (p.u) lines.push(str(p.u, 40));
+      if (data.a) lines.push(str(data.a, 200).split(',')[0]);
+      var d = el('p', { class: 'd', text: lines.join(' · ') });
+      var box = el('div', {}, [el('p', { class: 'n', text: p.b ? str(p.b, 80) : 'Photo ' + (cur + 1) }), d]);
+      if (p.g && /^-?\d+(\.\d+)?,-?\d+(\.\d+)?$/.test(p.g)) {
+        var gl = el('a', { href: 'https://www.google.com/maps?q=' + p.g, target: '_blank', rel: 'noopener', text: 'Map: ' + p.g });
+        box.appendChild(el('p', { class: 'd' }, [gl]));
+      }
+      panel.appendChild(el('div', { class: 'by' }, [el('div', { class: 'avatar', text: initials(p.b) }), box]));
+      any = true;
+    }
+    if (p.n) { panel.appendChild(el('p', { class: 'note', text: str(p.n) })); any = true; }
+    if (Array.isArray(p.tg) && p.tg.length) {
+      var tg = el('div', { class: 'tags' });
+      p.tg.slice(0, 30).forEach(function (t) { tg.appendChild(el('span', { text: '#' + str(t, 40) })); });
+      panel.appendChild(tg); any = true;
+    }
+    if (Array.isArray(p.vn) && p.vn.length) {
+      var s = el('div', { class: 'sec' }, [el('p', { class: 'lbl', text: p.vn.length === 1 ? 'VOICE NOTE' : 'VOICE NOTES (' + p.vn.length + ')' })]);
+      p.vn.forEach(function (v) {
+        if (!Array.isArray(v) || !okId(v[0])) return;
+        var box = el('div', { class: 'vn' });
+        var meta = [str(v[3], 80), fmtDate(v[4]), v[1] ? fmtSec(v[1]) : ''].filter(Boolean).join(' · ');
+        if (meta) box.appendChild(el('span', { class: 'w', text: meta }));
+        var au = el('audio', { controls: '', preload: 'none', src: dl(v[0]) });
+        box.appendChild(au);
+        if (v[2]) box.appendChild(el('p', { class: 'tx', text: '“' + str(v[2]) + '”' }));
+        s.appendChild(box);
+      });
+      panel.appendChild(s); any = true;
+    }
+    if (Array.isArray(p.cm) && p.cm.length) {
+      var cs = el('div', { class: 'sec' }, [el('p', { class: 'lbl', text: 'COMMENTS (' + p.cm.length + ')' })]);
+      p.cm.forEach(function (c) {
+        if (!Array.isArray(c)) return;
+        var a = el('p', { class: 'a', text: str(c[0], 80) || 'Comment' });
+        if (c[1]) a.appendChild(el('span', { text: fmtDate(c[1]) }));
+        cs.appendChild(el('div', { class: 'cm' }, [a, el('p', { class: 't', text: str(c[2]) })]));
+      });
+      panel.appendChild(cs); any = true;
+    }
+    panel.style.display = any ? 'flex' : 'none';
+  }
+
+  function openViewer(i) {
+    lastFocus = document.activeElement;
+    V.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    show(i);
+    document.getElementById('vClose').focus();
+    history.pushState({ v: 1 }, '', location.href);
+  }
+  function closeViewer(fromPop) {
+    if (!V.classList.contains('open')) return;
+    V.classList.remove('open');
+    document.body.style.overflow = '';
+    Array.prototype.forEach.call(stage.querySelectorAll('iframe'), function (n) { n.remove(); });
+    Array.prototype.forEach.call(panel.querySelectorAll('audio'), function (a) { a.pause(); });
+    if (lastFocus) lastFocus.focus();
+    if (!fromPop && history.state && history.state.v) history.back();
+  }
+  window.addEventListener('popstate', function () { closeViewer(true); });
+  document.getElementById('vClose').addEventListener('click', function () { closeViewer(false); });
+  document.getElementById('vPrev').addEventListener('click', function () { show(cur - 1); });
+  document.getElementById('vNext').addEventListener('click', function () { show(cur + 1); });
+  document.getElementById('vZoom').addEventListener('click', function () {
+    if (!img) return;
+    var r = stage.getBoundingClientRect();
+    zoomAt(z.s >= 4 ? 1 : z.s * 2, r.width / 2, r.height / 2);
+  });
+  document.addEventListener('keydown', function (e) {
+    if (!V.classList.contains('open')) return;
+    if (e.key === 'Escape') closeViewer(false);
+    else if (e.key === 'ArrowRight') show(cur + 1);
+    else if (e.key === 'ArrowLeft') show(cur - 1);
+  });
+
+  // Touch and mouse: pinch to zoom, drag while zoomed, double-tap to zoom, swipe to move between photos.
+  var pts = {}, start = null, lastTap = 0, moved = false;
+  function local(e) { var r = stage.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+  function two() { var k = Object.keys(pts); return k.length >= 2 ? [pts[k[0]], pts[k[1]]] : null; }
+  stage.addEventListener('pointerdown', function (e) {
+    if (!img || e.target.closest('.nav')) return;
+    stage.setPointerCapture(e.pointerId);
+    pts[e.pointerId] = local(e);
+    moved = false;
+    var t = two();
+    if (t) start = { d: Math.hypot(t[0].x - t[1].x, t[0].y - t[1].y), s: z.s, cx: (t[0].x + t[1].x) / 2, cy: (t[0].y + t[1].y) / 2 };
+    else start = { x: pts[e.pointerId].x, y: pts[e.pointerId].y, zx: z.x, zy: z.y };
+  });
+  stage.addEventListener('pointermove', function (e) {
+    if (!img || !pts[e.pointerId] || !start) return;
+    pts[e.pointerId] = local(e);
+    var t = two();
+    if (t && start.d) {
+      var d = Math.hypot(t[0].x - t[1].x, t[0].y - t[1].y);
+      zoomAt(start.s * d / start.d, start.cx, start.cy);
+      moved = true;
+    } else if (!t && start.x != null) {
+      var dx = pts[e.pointerId].x - start.x, dy = pts[e.pointerId].y - start.y;
+      if (Math.abs(dx) > 6 || Math.abs(dy) > 6) moved = true;
+      if (z.s > 1) { z.x = start.zx + dx; z.y = start.zy + dy; clampZ(); }
+    }
+  });
+  function end(e) {
+    if (!pts[e.pointerId]) return;
+    var p = pts[e.pointerId];
+    delete pts[e.pointerId];
+    if (Object.keys(pts).length) { var k = Object.keys(pts)[0]; start = { x: pts[k].x, y: pts[k].y, zx: z.x, zy: z.y }; return; }
+    if (start && start.x != null && z.s <= 1 && moved) {
+      var dx = p.x - start.x;
+      if (Math.abs(dx) > 50) show(cur + (dx < 0 ? 1 : -1));
+    } else if (!moved) {
+      var now = Date.now();
+      if (now - lastTap < 300) { zoomAt(z.s > 1 ? 1 : 2.5, p.x, p.y); lastTap = 0; } else lastTap = now;
+    }
+    start = null;
+  }
+  stage.addEventListener('pointerup', end);
+  stage.addEventListener('pointercancel', end);
+  stage.addEventListener('wheel', function (e) {
+    if (!img) return;
+    e.preventDefault();
+    var p = local(e);
+    zoomAt(z.s * (e.deltaY < 0 ? 1.15 : 1 / 1.15), p.x, p.y);
+  }, { passive: false });
+  window.addEventListener('resize', clampZ);
+})();
+</script>
+</body>
+</html>
